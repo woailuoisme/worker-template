@@ -1,0 +1,22 @@
+{
+  "name": "worker-template",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "pnpm run cf-gen-types && wrangler secret bulk .dev.vars.production && wrangler deploy --minify",
+    "cf-gen-types": "wrangler types --env-interface CloudflareBindings",
+    "better-auth-gen-schema": "pnpm dlx @better-auth/cli@latest generate --config ./better-auth.config.ts --output ./src/db/schema.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "better-auth": "^1.5.6",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.10"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.80.0"
+  }
+}
