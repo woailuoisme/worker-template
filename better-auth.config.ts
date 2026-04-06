@@ -3,9 +3,7 @@
  *
  * Docs: https://www.better-auth.com/docs/concepts/cli
  */
-import { config } from 'dotenv';
-
-config();
+process.loadEnvFile('.env');
 
 import { neon } from '@neondatabase/serverless';
 import { betterAuth } from 'better-auth';

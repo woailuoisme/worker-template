@@ -1,6 +1,4 @@
-import { config } from 'dotenv';
-
-config();
+process.loadEnvFile('.env');
 
 import { defineConfig } from 'drizzle-kit';
 

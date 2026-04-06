@@ -6,6 +6,11 @@
 			"sourceType": "github",
 			"computedHash": "a4c830509e85557b59339d8d93a4e243e9e59c686e7678854d39230e12c2a6dc"
 		},
+		"better-auth-security-best-practices": {
+			"source": "better-auth/skills",
+			"sourceType": "github",
+			"computedHash": "5717187bba9c22030c7174c74012f01c359f21e2ce87e0eb80e24244d8b8c915"
+		},
 		"cloudflare": {
 			"source": "cloudflare/skills",
 			"sourceType": "github",
@@ -15,6 +20,11 @@
 			"source": "bobmatnyc/claude-mpm-skills",
 			"sourceType": "github",
 			"computedHash": "9aea7469d696c9b5fa54a84b7a92ea692872fb624fb028f866ab0f3deac84867"
+		},
+		"email-and-password-best-practices": {
+			"source": "better-auth/skills",
+			"sourceType": "github",
+			"computedHash": "747d7f73bd9e2ec5317b8ef88dc70f97df716d00e3d02de4051feebaa48b062d"
 		},
 		"hono": {
 			"source": "yusukebe/hono-skill",
@@ -36,10 +46,20 @@
 			"sourceType": "github",
 			"computedHash": "391693eee67001639ab65474df185da3ea5cf9ee4b99badecfd64561113edbb4"
 		},
+		"organization-best-practices": {
+			"source": "better-auth/skills",
+			"sourceType": "github",
+			"computedHash": "79a5a85b43d10e9fe37582b3506b051a33a991817b938f349099baa5ddba21aa"
+		},
 		"postgresql-table-design": {
 			"source": "wshobson/agents",
 			"sourceType": "github",
 			"computedHash": "dcace78e5cef7d8dce8ffef7ebee146e6c83a438aa4cf80bf502730e870c02d4"
+		},
+		"two-factor-authentication-best-practices": {
+			"source": "better-auth/skills",
+			"sourceType": "github",
+			"computedHash": "7e297aaf887e11fdc03e52bdbf44974e161e8f7c393170ced7dc66cace4f6d46"
 		},
 		"vitest-best-practices": {
 			"source": "pageai-pro/ralph-loop",

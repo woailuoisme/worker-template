@@ -24,7 +24,7 @@ app.use('*', cors());
 // Better Auth — scoped to /api/auth/* (basePath matches lib/auth.ts)
 app.on(['POST', 'GET'], '/api/auth/*', (c) => {
 	const env = validateEnv(c.env);
-	return auth(env).handler(c.req.raw);
+	return auth(env, c.executionCtx).handler(c.req.raw);
 });
 
 // Feature modules — versioned under /api/v1

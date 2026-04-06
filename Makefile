@@ -1,53 +1,100 @@
 # Common Cloudflare Workers commands
 
-.PHONY: dev deploy cf-typegen better-auth-generate better-auth-secret db-generate db-migrate db-push db-pull db-seed help
+# 动态包管理器适配：支持 pnpm、npm、yarn 和 bun。默认使用 pnpm。
+# 使用示例：make dev PM=npm
+PM ?= pnpm
+
+ifeq ($(PM), pnpm)
+	RUN = pnpm
+	EXEC = pnpm dlx
+	BIN = pnpm
+else ifeq ($(PM), yarn)
+	RUN = yarn
+	EXEC = yarn dlx
+	BIN = yarn
+else ifeq ($(PM), bun)
+	RUN = bun run
+	EXEC = bunx
+	BIN = bunx
+else
+	RUN = npm run
+	EXEC = npx
+	BIN = npx
+endif
+
+.PHONY: dev deploy check lint type cf-typegen sync-agents skills-install better-auth-generate better-auth-secret db-generate db-migrate db-push db-pull db-seed help
 
 dev:
-	pnpm dev
+	$(RUN) dev
 
 deploy:
-	pnpm deploy
+	$(RUN) deploy
 
 cf-typegen:
-	pnpm cf-typegen
+	$(RUN) cf-typegen
+
+# 运行代码检查与类型检查
+check:
+	$(RUN) lint && $(RUN) type
+
+lint:
+	$(RUN) lint
+
+type:
+	$(RUN) type
+
+# 同步 Agent 配置到各平台特定的文件
+sync-agents:
+	./sync-agents.sh
+
+# 实验性：为 Agent 环境自动重新安装和挂载最新锁定的全套 Skills 能力
+skills-install:
+	$(EXEC) skills experimental_install
 
 # 根据 Better Auth 配置生成对应的数据库 Schema
 better-auth-generate:
-	pnpm dlx @better-auth/cli@latest generate --config ./better-auth.config.ts --output ./src/db/schema/auth.ts
+	$(EXEC) @better-auth/cli@latest generate --config ./better-auth.config.ts --output ./src/db/schema/auth.ts
 
 # 为 Better Auth 随机生成一个高强度的安全密钥
 better-auth-secret:
-	pnpm dlx @better-auth/cli@latest secret
+	$(EXEC) @better-auth/cli@latest secret
 
 # [迁移管理流程] 对比最新代码，生成用于版本控制的变更 SQL 迁移文件
 db-generate:
-	pnpm drizzle-kit generate
+	$(BIN) drizzle-kit generate
 
 # [迁移管理流程] 按顺序执行未提交的 SQL 迁移文件到远端数据库
 db-migrate:
-	pnpm drizzle-kit migrate
+	$(BIN) drizzle-kit migrate
 
 # [快速原型流程] 强行将本地 TS Scheme 推送到验证数据库 (破坏性操作：不建议生产环境)
 db-push:
-	pnpm drizzle-kit push
+	$(BIN) drizzle-kit push
 
 # [快速原型流程] 逆向内省真实的远端数据库，并生成本地对应的 TypeScript Schema
 db-pull:
-	pnpm drizzle-kit pull
+	$(BIN) drizzle-kit pull
 
 # [测试数据] 为数据库自动生成并注入带有关联关系的用户/账户测试数据
 db-seed:
-	pnpm db:seed
+	$(RUN) db:seed
 
 help:
 	@echo "可用命令列表:"
+	@echo "  环境变量注入: make [Command] PM=npm/yarn/bun (默认 PM=pnpm)"
+	@echo "----------------------------------------------------------------------"
 	@echo "  make dev                 - 启动本地开发与测试服务器"
 	@echo "  make deploy              - 将 Worker 部署发布到 Cloudflare"
+	@echo "  make check               - 运行代码规范检查与 TypeScript 类型检查"
+	@echo "  make lint                - 运行代码规范检查 (Biome)"
+	@echo "  make type                - 运行 TypeScript 类型检查 (tsc)"
+	@echo "  make sync-agents         - 将 AGENTS.md 规范同步给 CLAUDE.md 与 GEMINI.md"
+	@echo "  make skills-install      - 为当前开发体系加载并挂载全局锁定的 AI Context Skills"
 	@echo "  make cf-typegen          - 基于 wrangler 自动生成本地强类型绑定"
 	@echo "  make better-auth-generate - 基于配置自动生成专属的 Auth Schema"
 	@echo "  make better-auth-secret  - 生成专用的 Better Auth 密钥"
-	@echo "  make db-generate         - [迁移式] 从现有的 TS Scheme 导出新的 SQL 迁移状态记录"
+	@echo "  make db-generate         - [迁移式] 从现有的 TS Scheme 导出新的 SQL 迁移状态"
 	@echo "  make db-migrate          - [迁移式] 将未处理的 SQL 迁移记录运行并应用到数据库"
 	@echo "  make db-push             - [强制性] 暴力直接将当前架构同步到数据库 (快速但不安全!)"
-	@echo "  make db-pull             - [强制性] 扫描云端已有数据库结构，导出为本地的 Schema 文件"
-	@echo "  make db-seed             - [数据器] 使用 Faker 为数据库生成并填充模拟测试数据"
+	@echo "  make db-pull             - [强制性] 扫描云端已有数据库结构，导出为本地 Schema 文件"
+	@echo "  make db-seed             - [数据器] 使用自定义 Seeder 引擎执行数据库播种任务"
