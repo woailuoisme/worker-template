@@ -1,3 +1,4 @@
+import { sentry } from '@hono/sentry';
 import { Scalar } from '@scalar/hono-api-reference';
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown';
 import { cors } from 'hono/cors';
@@ -8,6 +9,7 @@ import { auth } from '@/lib/auth';
 import { initLogger, logger } from '@/lib/logger';
 import { notFound } from '@/middlewares/not-found';
 import { onError } from '@/middlewares/on-error';
+import { articlesRouter } from '@/modules/articles/articles.index';
 import { tasksRouter } from '@/modules/tasks/tasks.index';
 
 const app = createRouter();
@@ -16,16 +18,18 @@ const app = createRouter();
 await initLogger();
 
 // Global middleware
+app.use('*', sentry());
 app.use('*', cors());
 
-// Better Auth
-app.on(['POST', 'GET'], '/api/*', (c) => {
+// Better Auth — scoped to /api/auth/* (basePath matches lib/auth.ts)
+app.on(['POST', 'GET'], '/api/auth/*', (c) => {
 	const env = validateEnv(c.env);
 	return auth(env).handler(c.req.raw);
 });
 
-// Feature modules
-app.route('/tasks', tasksRouter);
+// Feature modules — versioned under /api/v1
+app.route('/api/v1/tasks', tasksRouter);
+app.route('/api/v1/articles', articlesRouter);
 
 // Helper to generate OpenAPI spec
 async function generateOpenApiSpec(c: any, app: any) {
@@ -43,7 +47,8 @@ async function generateOpenApiSpec(c: any, app: any) {
 	});
 
 	appSpecs.components = appSpecs.components || {};
-	appSpecs.components.securitySchemes = appSpecs.components.securitySchemes || {};
+	appSpecs.components.securitySchemes =
+		appSpecs.components.securitySchemes || {};
 	appSpecs.components.securitySchemes.bearerAuth = {
 		type: 'http',
 		scheme: 'bearer',
@@ -53,7 +58,9 @@ async function generateOpenApiSpec(c: any, app: any) {
 
 	try {
 		const authResponse = await authInstance.handler(
-			new Request(new URL('/api/open-api/generate-schema', env.BETTER_AUTH_URL))
+			new Request(
+				new URL('/api/auth/open-api/generate-schema', env.BETTER_AUTH_URL)
+			)
 		);
 		const authSpecs = await authResponse.json();
 
@@ -62,7 +69,7 @@ async function generateOpenApiSpec(c: any, app: any) {
 				{ oas: appSpecs as any },
 				{
 					oas: authSpecs as any,
-					pathModification: { prepend: '/api' },
+					pathModification: { prepend: '/api/auth' },
 				},
 			]);
 
@@ -83,7 +90,6 @@ app.get('/openapi.json', async (c) => {
 	return c.json(specs);
 });
 
-
 /**
  * Register a route to serve the Markdown for LLMs
  *
@@ -98,7 +104,6 @@ app.get('/llms.txt', async (c) => {
 	const markdown = await createMarkdownFromOpenApi(JSON.stringify(specs));
 	return c.text(markdown);
 });
-
 
 // Scalar
 app.get(

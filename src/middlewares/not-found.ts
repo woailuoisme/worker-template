@@ -1,10 +1,8 @@
 import type { NotFoundHandler } from 'hono';
+import { sendError } from '@/lib/response';
 
 export const notFound: NotFoundHandler = (c) => {
-	return c.json(
-		{
-			message: `${c.req.method} ${c.req.path} Not Found`,
-		},
-		404
-	);
+	return sendError(c, 404, `${c.req.method} ${c.req.path} Not Found`, {
+		errorCode: 'NOT_FOUND',
+	});
 };

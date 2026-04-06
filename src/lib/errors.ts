@@ -1,4 +1,4 @@
-import { z } from '@hono/zod-openapi';
+import { apiErrorSchema } from './response';
 
 export class AppError extends Error {
 	public statusCode: number;
@@ -31,7 +31,4 @@ export class ForbiddenError extends AppError {
 	}
 }
 
-export const errorResponseSchema = z.object({
-	message: z.string(),
-	details: z.any().optional(),
-});
+export const errorResponseSchema = apiErrorSchema;

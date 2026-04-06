@@ -5,7 +5,11 @@ import {
 	updateTaskSchema,
 } from '@/db/schema';
 import { createRouter } from '@/factory';
-import { errorResponseSchema } from '@/lib/errors';
+import {
+	apiErrorSchema,
+	apiPaginatedSchema,
+	apiSuccessSchema,
+} from '@/lib/response';
 import * as handlers from '@/modules/tasks/tasks.handlers';
 
 const router = createRouter();
@@ -25,11 +29,17 @@ export const listTasksRoute = createRoute({
 	tags,
 	summary: 'List tasks',
 	operationId: 'listTasks',
+	request: {
+		query: z.object({
+			page: z.coerce.number().optional().default(1),
+			limit: z.coerce.number().optional().default(10),
+		}),
+	},
 	responses: {
 		200: {
 			description: 'List of tasks',
 			content: {
-				'application/json': { schema: z.array(selectTaskSchema) },
+				'application/json': { schema: apiPaginatedSchema(selectTaskSchema) },
 			},
 		},
 	},
@@ -48,11 +58,13 @@ export const getTaskRoute = createRoute({
 	responses: {
 		200: {
 			description: 'Task details',
-			content: { 'application/json': { schema: selectTaskSchema } },
+			content: {
+				'application/json': { schema: apiSuccessSchema(selectTaskSchema) },
+			},
 		},
 		404: {
 			description: 'Task not found',
-			content: { 'application/json': { schema: errorResponseSchema } },
+			content: { 'application/json': { schema: apiErrorSchema } },
 		},
 	},
 });
@@ -74,11 +86,13 @@ export const createTaskRoute = createRoute({
 	responses: {
 		201: {
 			description: 'Created task',
-			content: { 'application/json': { schema: selectTaskSchema } },
+			content: {
+				'application/json': { schema: apiSuccessSchema(selectTaskSchema) },
+			},
 		},
 		422: {
 			description: 'Validation Error',
-			content: { 'application/json': { schema: errorResponseSchema } },
+			content: { 'application/json': { schema: apiErrorSchema } },
 		},
 	},
 });
@@ -101,11 +115,13 @@ export const updateTaskRoute = createRoute({
 	responses: {
 		200: {
 			description: 'Updated task',
-			content: { 'application/json': { schema: selectTaskSchema } },
+			content: {
+				'application/json': { schema: apiSuccessSchema(selectTaskSchema) },
+			},
 		},
 		404: {
 			description: 'Task not found',
-			content: { 'application/json': { schema: errorResponseSchema } },
+			content: { 'application/json': { schema: apiErrorSchema } },
 		},
 	},
 });
@@ -121,12 +137,13 @@ export const deleteTaskRoute = createRoute({
 		params: idParamSchema,
 	},
 	responses: {
-		204: {
+		200: {
 			description: 'Task deleted',
+			content: { 'application/json': { schema: apiSuccessSchema(z.null()) } },
 		},
 		404: {
 			description: 'Task not found',
-			content: { 'application/json': { schema: errorResponseSchema } },
+			content: { 'application/json': { schema: apiErrorSchema } },
 		},
 	},
 });

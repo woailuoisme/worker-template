@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { type InsertTask, type Task, tasks } from '@/db/schema';
 import { NotFoundError } from '@/lib/errors';
@@ -10,8 +10,23 @@ export class TasksService {
 		return getDb(this.dbUrl);
 	}
 
-	async getTasks(): Promise<Task[]> {
-		return await this.db.select().from(tasks).orderBy(tasks.createdAt);
+	async getTasks(options: {
+		page: number;
+		limit: number;
+	}): Promise<{ items: Task[]; total: number }> {
+		const offset = (options.page - 1) * options.limit;
+
+		const [totalResult] = await this.db.select({ value: count() }).from(tasks);
+		const total = totalResult?.value ?? 0;
+
+		const items = await this.db
+			.select()
+			.from(tasks)
+			.orderBy(tasks.createdAt)
+			.limit(options.limit)
+			.offset(offset);
+
+		return { items, total };
 	}
 
 	async getTaskById(id: string): Promise<Task> {

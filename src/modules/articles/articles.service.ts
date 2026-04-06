@@ -1,11 +1,11 @@
 export class ArticlesService {
-	constructor(private readonly dbUrl: string) {}
+	constructor(readonly _dbUrl: string) {}
 
 	async list() {
 		return [];
 	}
 
-	async getById(id: string) {
+	async getById(_id: string) {
 		return null;
 	}
 }

@@ -15,6 +15,7 @@
 		"db:seed": "tsx src/db/seeder/main.ts"
 	},
 	"dependencies": {
+		"@hono/sentry": "^1.2.2",
 		"@hono/zod-openapi": "^1.2.4",
 		"@logtape/logtape": "^2.0.5",
 		"@neondatabase/serverless": "^1.0.2",

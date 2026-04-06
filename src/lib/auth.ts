@@ -15,7 +15,7 @@ export const betterAuthOptions: BetterAuthOptions = {
 	 * Base path for Better Auth.
 	 * @default "/api/auth"
 	 */
-	basePath: '/api',
+	basePath: '/api/auth',
 
 	plugins: [openAPI(), jwt(), bearer(), username()],
 };

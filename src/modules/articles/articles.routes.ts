@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import { createRouter } from '@/factory';
-import { errorResponseSchema } from '@/lib/errors';
+import { apiErrorSchema, apiSuccessSchema } from '@/lib/response';
 import * as handlers from './articles.handlers';
 
 const router = createRouter();
@@ -21,7 +21,7 @@ export const listArticlesRoute = createRoute({
 		200: {
 			description: 'List of articles',
 			content: {
-				'application/json': { schema: z.array(z.any()) },
+				'application/json': { schema: apiSuccessSchema(z.array(z.any())) },
 			},
 		},
 	},
@@ -40,11 +40,11 @@ export const getArticlesRoute = createRoute({
 	responses: {
 		200: {
 			description: 'Articles details',
-			content: { 'application/json': { schema: z.any() } },
+			content: { 'application/json': { schema: apiSuccessSchema(z.any()) } },
 		},
 		404: {
 			description: 'Not found',
-			content: { 'application/json': { schema: errorResponseSchema } },
+			content: { 'application/json': { schema: apiErrorSchema } },
 		},
 	},
 });

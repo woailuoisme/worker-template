@@ -1,2 +1,2 @@
-export * from './articles.routes';
+export { articlesRouter } from './articles.routes';
 export * from './articles.service';
