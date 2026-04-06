@@ -1,0 +1,53 @@
+import { createRoute, z } from '@hono/zod-openapi';
+import { createRouter } from '@/factory';
+import { errorResponseSchema } from '@/lib/errors';
+import * as handlers from './{{ModuleName}}.handlers';
+
+const router = createRouter();
+
+const tags = ['{{PascalName}}'];
+
+const idParamSchema = z.object({
+	id: z.string().openapi({ example: '123' }),
+});
+
+export const list{{PascalName}}Route = createRoute({
+	method: 'get',
+	path: '/',
+	tags,
+	summary: 'List {{ModuleName}}',
+	operationId: 'list{{PascalName}}',
+	responses: {
+		200: {
+			description: 'List of {{ModuleName}}',
+			content: {
+				'application/json': { schema: z.array(z.any()) },
+			},
+		},
+	},
+});
+router.openapi(list{{PascalName}}Route, handlers.listHandler);
+
+export const get{{PascalName}}Route = createRoute({
+	method: 'get',
+	path: '/{id}',
+	tags,
+	summary: 'Get {{ModuleName}} by ID',
+	operationId: 'get{{PascalName}}',
+	request: {
+		params: idParamSchema,
+	},
+	responses: {
+		200: {
+			description: '{{PascalName}} details',
+			content: { 'application/json': { schema: z.any() } },
+		},
+		404: {
+			description: 'Not found',
+			content: { 'application/json': { schema: errorResponseSchema } },
+		},
+	},
+});
+router.openapi(get{{PascalName}}Route, handlers.getHandler);
+
+export { router as {{CamelName}}Router };

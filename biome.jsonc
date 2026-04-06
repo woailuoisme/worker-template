@@ -1,0 +1,152 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineEnding": "lf"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true, // 启用推荐的规则
+			"complexity": {
+				"noUselessSwitchCase": "error" // 禁止无用的 switch case
+			},
+			"correctness": {
+				"noEmptyCharacterClassInRegex": "error", // 禁止正则表达式中的空字符类
+				"noUnsafeOptionalChaining": "warn", // 警告不安全的可选链
+				"useHookAtTopLevel": "error" // 强制在顶层使用 Hook
+			},
+			"performance": {
+				"noDelete": "warn" // 警告使用 delete 操作符
+			},
+			"security": {
+				"noDangerouslySetInnerHtml": "error" // 禁止使用 dangerouslySetInnerHTML
+			},
+			"style": {
+				"noInferrableTypes": "warn", // 对于可推断类型，不建议显式声明
+				"noParameterAssign": "error", // 禁止对函数参数重新赋值
+				"noUnusedTemplateLiteral": "error", // 禁止无用的模板字符串
+				"useBlockStatements": "error", // 强制使用代码块
+				"useConsistentBuiltinInstantiation": "error", // 统一内置对象的实例化方式
+				"useExponentiationOperator": "warn", // 建议使用幂运算符 **
+				"useExportType": "error", // 强制使用 export type 进行类型导出
+				"useImportType": "error", // 强制使用 import type 进行类型导入
+				"useNumberNamespace": "error", // 建议使用 Number 命名空间
+				"useShorthandAssign": "warn", // 建议使用复合赋值运算符
+				"useShorthandFunctionType": "error", // 建议使用简写函数类型
+				"useTemplate": "warn" // 建议使用模板字符串
+			},
+			"suspicious": {
+				"noConsole": "warn", // 警告使用 console
+				"noDoubleEquals": "error", // 禁止使用 ==，强制使用 ===
+				"noExplicitAny": "off", // 允许显式使用 any
+				"noExportsInTest": "error", // 禁止在测试文件中使用导出
+				"noFocusedTests": "error", // 禁止提交聚焦的测试
+				"noSkippedTests": "warn", // 警告存在跳过的测试
+				"noThenProperty": "error" // 禁止使用 .then 属性
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"trailingCommas": "es5"
+		},
+		"globals": [
+			"describe",
+			"it",
+			"test",
+			"expect",
+			"beforeEach",
+			"afterEach",
+			"beforeAll",
+			"afterAll"
+		]
+	},
+	"json": {
+		"linter": {
+			"enabled": true
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": [
+				"src/index.ts",
+				"src/lib/email.ts",
+				"src/lib/logger.ts",
+				"commands/**"
+			],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"useLiteralKeys": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["scripts/**", "commands/**"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noConsole": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["test-results/**"],
+			"linter": {
+				"enabled": false
+			},
+			"formatter": {
+				"enabled": false
+			}
+		},
+		{
+			"includes": ["worker-configuration.d.ts"],
+			"linter": {
+				"enabled": false
+			},
+			"formatter": {
+				"enabled": false
+			}
+		},
+		{
+			"includes": ["**/*.test.ts", "**/*.spec.ts", "tests/**"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"useArrowFunction": "off"
+					},
+					"suspicious": {
+						"noConsole": "off",
+						"noThenProperty": "off"
+					},
+					"style": {
+						"noInferrableTypes": "off",
+						"noParameterAssign": "off"
+					}
+				}
+			}
+		}
+	]
+}

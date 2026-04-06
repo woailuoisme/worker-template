@@ -1,0 +1,10 @@
+{
+	"version": 1,
+	"skills": {
+		"hono-best-practices": {
+			"source": "valuin/hono-best-practices",
+			"sourceType": "github",
+			"computedHash": "72e78207c5848e79c1b56bf96894bce6dabed929f4d803002cea806615bc093f"
+		}
+	}
+}
