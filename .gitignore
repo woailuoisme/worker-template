@@ -31,3 +31,10 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+
+# Agents/Skills/Specs
+specs/
+.specify/
+.claude/skills/
+.agents/skills/
+.agent/
