@@ -77,6 +77,20 @@ export const paginationMetaSchema = z.object({
 	to: z.number(),
 });
 
+export const paginationQuerySchema = z.object({
+	page: z.coerce
+		.number({ error: 'Page must be a valid number' })
+		.int()
+		.positive()
+		.default(1),
+	limit: z.coerce
+		.number({ error: 'Limit must be a valid number' })
+		.int()
+		.positive()
+		.max(100)
+		.default(10),
+});
+
 export const apiPaginatedSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
 	apiSuccessSchema(
 		z.object({

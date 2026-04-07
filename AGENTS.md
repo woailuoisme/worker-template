@@ -11,8 +11,8 @@ src/
 ├── factory.ts              # Hono 实例工厂 (生成 OpenAPIHono 和 Context 类型)
 ├── index.ts                # Worker 默认入口点 (export default app)
 ├── db/                     # 数据库控制层 (Drizzle ORM)
-│   ├── index.ts            # 导出配置好的 DB 实例对象 (Neon HTTP)
-│   ├── schema/             # 数据表定义 (*.ts 配置)，由 index.ts 统一对外汇聚导出
+│   ├── index.ts            # 导出 getDb() 获取连接，并汇聚所有 Schema
+│   ├── schema/             # 全局/核心(如 Auth)表定义，由 index.ts 统一导出
 │   └── seeder/             # 数据库自动播种与初始化入口 (main.ts)
 ├── lib/                    # 核心抽象库与第三方服务实例配置 (与纯业务解耦)
 │   ├── auth.ts             # [通用] Better Auth 实例中心
@@ -25,8 +25,9 @@ src/
 └── modules/                # 现代模块化单体组织目录 (业务逻辑深度垂直切分)
     └── {feature}/          # 代表任意按业务域聚合的模块 (如 tasks/, articles/)
         ├── {feature}.routes.ts   # 使用 createRoute() 强类型声明请求与 OpenAPI
-        ├── {feature}.handlers.ts # Context 处理层 (入参提取流转与标准化 HTTP JSON 响应)
-        ├── {feature}.service.ts  # 服务层 (执行纯业务逻辑与 Drizzle 数据库交互)
+        ├── {feature}.handlers.ts # Context 处理层 (参数提取与标准化 HTTP JSON 响应)
+        ├── {feature}.service.ts  # 服务层 (通过 getDb() 执行业务逻辑与 DB 交互)
+        ├── {feature}.schema.ts   # 业务私有 Schema 定义 (含 Zod 与 Drizzle Table)
         └── {feature}.index.ts    # 模块暴露汇聚点，向主应用安全隔离并挂载当前模块路由
 ```
 
@@ -59,7 +60,9 @@ src/
 - 业务错误请遵循 `src/lib/errors.ts` 结构，抛出 `NotFoundError`, `ValidationError`, `AppError`。
 
 ### 4. 数据库管理 (Drizzle)
-- 所有 Schema 存放在 `src/db/schema/*.ts` 并在 `index.ts` 统一暴露。
+- 业务私有 Schema 存放在各自模块内，通用/核心 Schema (如 Auth) 存放在 `src/db/schema/`。
+- 所有 Schema 必须在 `src/db/schema/index.ts` 汇聚导出，以支持 Drizzle Kit 迁移。
+- 推荐在 Service 层直接使用 `getDb()` 获取连接，该函数支持请求上下文与 CLI 环境。
 - 数据库播种通过 `pnpm db:seed` 执行 `src/db/seeder/main.ts`。
 
 ### 5. 自定义 CLI 工具

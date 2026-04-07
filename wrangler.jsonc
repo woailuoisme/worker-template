@@ -3,9 +3,7 @@
 	"name": "worker-template",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-04-05",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
+	"compatibility_flags": ["nodejs_compat"],
 	"vars": {
 		"APP_NAME": "Tasks API",
 		"NODE_ENV": "production",

@@ -1,22 +1,23 @@
-import { neon } from '@neondatabase/serverless';
 import { type BetterAuthOptions, betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { bearer, jwt, magicLink, openAPI, username } from 'better-auth/plugins';
-import { drizzle } from 'drizzle-orm/neon-http';
+import {
+	admin,
+	bearer,
+	jwt,
+	magicLink,
+	openAPI,
+	username,
+} from 'better-auth/plugins';
+import { createDb } from '@/db';
 import type { Env } from '@/env';
 import { sendEmail } from '@/lib/email';
 import { logger } from '@/lib/logger';
+import { TemplateActionLink } from '@/resources/email/email-templates';
 
 /**
  * Custom options for Better Auth
- *
- * Docs: https://www.better-auth.com/docs/reference/options
  */
 export const betterAuthOptions: BetterAuthOptions = {
-	/**
-	 * Base path for Better Auth.
-	 * @default "/api/auth"
-	 */
 	basePath: '/api/auth',
 };
 
@@ -28,8 +29,7 @@ interface ExecutionContext {
  * Better Auth Instance
  */
 export const auth = (env: Env, ctx?: ExecutionContext) => {
-	const sql = neon(env.DATABASE_URL);
-	const db = drizzle(sql);
+	const db = createDb(env.DATABASE_URL);
 
 	return betterAuth({
 		...betterAuthOptions,
@@ -52,13 +52,19 @@ export const auth = (env: Env, ctx?: ExecutionContext) => {
 					await sendEmail(env, {
 						to: email,
 						subject: `Sign in to ${env.APP_NAME}`,
-						html: `<p>Click the link below to sign in:</p><p><a href="${url}">${url}</a></p>`,
+						html: (
+							TemplateActionLink({
+								title: 'Secure Sign In',
+								actionText:
+									'Please click the button below to securely sign in to your account.',
+								url,
+								appName: env.APP_NAME,
+							}) as any
+						).toString(),
 					});
 				},
 			}),
-			/* --- 待启用的推荐插件 --- */
-			/** 双重身份验证 (2FA) */
-			// twoFactor(),
+
 			/**
 			 * 管理员功能 (Admin)
 			 * 提供管理员专用的 API 接口，用于后台管理操作，如：
@@ -66,7 +72,10 @@ export const auth = (env: Env, ctx?: ExecutionContext) => {
 			 * - 强制清除用户会话
 			 * - 更改用户权限角色
 			 */
-			// admin(),
+			admin(),
+			/* --- 待启用的推荐插件 --- */
+			/** 双重身份验证 (2FA) */
+			// twoFactor(),
 			/**
 			 * 组织与团队管理 (Organization)
 			 * 开启多租户或团队协作能力，支持：
@@ -83,7 +92,15 @@ export const auth = (env: Env, ctx?: ExecutionContext) => {
 				await sendEmail(env, {
 					to: user.email,
 					subject: `Reset your password - ${env.APP_NAME}`,
-					html: `<p>Click the link below to reset your password:</p><p><a href="${url}">${url}</a></p>`,
+					html: (
+						TemplateActionLink({
+							title: 'Reset Password',
+							actionText:
+								'We received a request to reset your password. Click the button below to set a new one:',
+							url,
+							appName: env.APP_NAME,
+						}) as any
+					).toString(),
 				});
 			},
 		},
@@ -94,7 +111,15 @@ export const auth = (env: Env, ctx?: ExecutionContext) => {
 				await sendEmail(env, {
 					to: user.email,
 					subject: `Verify your email address - ${env.APP_NAME}`,
-					html: `<p>Click the link below to verify your email address:</p><p><a href="${url}">${url}</a></p>`,
+					html: (
+						TemplateActionLink({
+							title: 'Verify Your Email Address',
+							actionText:
+								'Welcome! Please verify your email address to complete your account setup by clicking the button below:',
+							url,
+							appName: env.APP_NAME,
+						}) as any
+					).toString(),
 				});
 			},
 		},

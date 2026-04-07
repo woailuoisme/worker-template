@@ -26,6 +26,11 @@
 			"sourceType": "github",
 			"computedHash": "747d7f73bd9e2ec5317b8ef88dc70f97df716d00e3d02de4051feebaa48b062d"
 		},
+		"email-best-practices": {
+			"source": "resend/email-best-practices",
+			"sourceType": "github",
+			"computedHash": "345d2c8d69ea959172f084b923241772695b73f66a1068787349dffcfd3df4e6"
+		},
 		"hono": {
 			"source": "yusukebe/hono-skill",
 			"sourceType": "github",
@@ -60,6 +65,11 @@
 			"source": "better-auth/skills",
 			"sourceType": "github",
 			"computedHash": "7e297aaf887e11fdc03e52bdbf44974e161e8f7c393170ced7dc66cace4f6d46"
+		},
+		"vitest": {
+			"source": "onmax/nuxt-skills",
+			"sourceType": "github",
+			"computedHash": "04ed1b09da8ac778d693ad12fab49b1c48aadfe1758fe13eb4d6de3fdcbb22f4"
 		},
 		"vitest-best-practices": {
 			"source": "pageai-pro/ralph-loop",

@@ -12,6 +12,7 @@
 import { Resend } from 'resend';
 import type { Env } from '@/env';
 import { logger } from '@/lib/logger';
+import { TemplateOTP } from '../resources/email/email-templates';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,6 +25,10 @@ export interface EmailOptions {
 	text?: string;
 	/** Override the default sender address for this message only */
 	from?: string;
+	/** Optional reply-to address */
+	replyTo?: string;
+	/** Unique key to prevent duplicate emails. Typically `event-type-${id}`. */
+	idempotencyKey?: string;
 }
 
 export type EmailResult =
@@ -35,7 +40,7 @@ export type EmailResult =
 // ---------------------------------------------------------------------------
 
 /**
- * Send a single email via Resend.
+ * Send a single email via Resend with retries and idempotency.
  *
  * Returns a typed result object – never throws.
  * If `RESEND_API_KEY` is not set the call is a no-op (`success: false`).
@@ -50,84 +55,89 @@ export async function sendEmail(
 	}
 
 	const from = options.from ?? env.RESEND_FROM_EMAIL;
+	const maxRetries = 3;
 
-	try {
-		const resend = new Resend(env.RESEND_API_KEY);
-		const { data, error } = await resend.emails.send({
-			from,
-			to: options.to,
-			subject: options.subject,
-			html: options.html,
-			...(options.text ? { text: options.text } : {}),
-		});
+	for (let attempt = 0; attempt < maxRetries; attempt++) {
+		const controller = new AbortController();
+		const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-		if (error || !data?.id) {
-			const message = error?.message ?? 'Unknown Resend error';
-			logger.error('sendEmail: Resend API error', { error: message });
+		try {
+			const resend = new Resend(env.RESEND_API_KEY);
+			const { data, error } = await resend.emails.send(
+				{
+					from,
+					to: options.to,
+					subject: options.subject,
+					html: options.html,
+					text: options.text,
+					replyTo: options.replyTo,
+				},
+				{
+					headers: options.idempotencyKey
+						? { 'Idempotency-Key': options.idempotencyKey }
+						: undefined,
+				}
+			);
+
+			if (error || !data?.id) {
+				const message = error?.message ?? 'Unknown Resend error';
+				const statusCode = (error as any)?.statusCode;
+
+				// Retry on server errors or rate limits
+				if (
+					attempt < maxRetries - 1 &&
+					(statusCode >= 500 || statusCode === 429)
+				) {
+					const delay = Math.min(1000 * 2 ** attempt, 5000);
+					logger.warn(`sendEmail: transient error, retrying in ${delay}ms`, {
+						error: message,
+						attempt: attempt + 1,
+					});
+					await new Promise((resolve) => setTimeout(resolve, delay));
+					continue;
+				}
+
+				logger.error('sendEmail: Resend API error', { error: message });
+				return { success: false, error: message };
+			}
+
+			logger.info('sendEmail: sent successfully', {
+				messageId: data.id,
+				to: options.to,
+				attempt: attempt + 1,
+			});
+			return { success: true, messageId: data.id };
+		} catch (err: unknown) {
+			const isAbort = err instanceof Error && err.name === 'AbortError';
+			const message = isAbort
+				? 'Request timed out (10s)'
+				: err instanceof Error
+					? err.message
+					: String(err);
+
+			if (attempt < maxRetries - 1 && (isAbort || message.includes('fetch'))) {
+				const delay = Math.min(1000 * 2 ** attempt, 5000);
+				logger.warn(`sendEmail: network error, retrying in ${delay}ms`, {
+					error: message,
+					attempt: attempt + 1,
+				});
+				await new Promise((resolve) => setTimeout(resolve, delay));
+				continue;
+			}
+
+			logger.error('sendEmail: unexpected error', { error: message });
 			return { success: false, error: message };
+		} finally {
+			clearTimeout(timeout);
 		}
-
-		logger.info('sendEmail: sent', { messageId: data.id, to: options.to });
-		return { success: true, messageId: data.id };
-	} catch (err: unknown) {
-		const message = err instanceof Error ? err.message : String(err);
-		logger.error('sendEmail: unexpected error', { error: message });
-		return { success: false, error: message };
 	}
+
+	return { success: false, error: 'Max retries exceeded' };
 }
 
 // ---------------------------------------------------------------------------
 // Email templates
 // ---------------------------------------------------------------------------
-
-const LABEL: Record<
-	'email_verify' | 'password_reset',
-	{ emoji: string; title: string; subject: string }
-> = {
-	email_verify: {
-		emoji: '✅',
-		title: 'Verify Your Email',
-		subject: 'Verify Your Email – OTP',
-	},
-	password_reset: {
-		emoji: '🔐',
-		title: 'Password Reset',
-		subject: 'Password Reset OTP',
-	},
-};
-
-function buildOTPHtml(otp: string, purpose: keyof typeof LABEL): string {
-	const { emoji, title } = LABEL[purpose];
-	return `
-<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
-  <h1 style="margin:0 0 16px">${emoji} ${title}</h1>
-  <p style="margin:0 0 8px;color:#444">Your one-time password (OTP) is:</p>
-  <div style="display:inline-block;font-size:28px;font-weight:700;letter-spacing:6px;
-              padding:12px 24px;margin:16px 0;background:#f4f4f5;border-radius:8px">
-    ${otp}
-  </div>
-  <p style="color:#555">This OTP is valid for <strong>10 minutes</strong>.</p>
-  <p style="color:#888;font-size:13px">
-    If you did not request this, you can safely ignore this email.
-  </p>
-  <hr style="margin:28px 0;border:none;border-top:1px solid #e5e7eb" />
-  <p style="color:#aaa;font-size:11px">Sent by ${title}</p>
-</div>
-  `.trim();
-}
-
-function buildOTPText(otp: string, purpose: keyof typeof LABEL): string {
-	const { title } = LABEL[purpose];
-	return [
-		title,
-		'',
-		`Your OTP code: ${otp}`,
-		'',
-		'Valid for 10 minutes.',
-		'',
-		"If you didn't request this, please ignore this email.",
-	].join('\n');
-}
 
 // ---------------------------------------------------------------------------
 // High-level helpers
@@ -142,12 +152,17 @@ export async function sendOTPEmail(
 	otp: string,
 	purpose: 'email_verify' | 'password_reset'
 ): Promise<EmailResult> {
-	const { subject } = LABEL[purpose];
+	const appName = env.APP_NAME ?? 'Cloudflare Worker';
+	const title = purpose === 'email_verify' ? '验证您的邮箱' : '重置密码';
 
 	return sendEmail(env, {
 		to,
-		subject,
-		html: buildOTPHtml(otp, purpose),
-		text: buildOTPText(otp, purpose),
+		subject: `${title} – ${appName}`,
+		// Render the JSX template to a string
+		html: (TemplateOTP({ otp, title, appName }) as any).toString(),
+		text: `${title}\n\n验证码: ${otp}\n\n该验证码 10 分钟内有效。`,
+		// Use a deterministic key to prevent accidental duplicate sends
+		// if the auth flow retries this call.
+		idempotencyKey: `${purpose}-${to}-${otp}`,
 	});
 }

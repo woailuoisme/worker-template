@@ -1,2 +1,2 @@
 export * from '@/db/schema/auth';
-export * from '@/db/schema/tasks';
+export * from '@/modules/tasks/tasks.schema';

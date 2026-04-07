@@ -3,6 +3,8 @@ import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
+	// role: text("role").default("user"),
+	role: text('role').default('user'), // 关键字段
 	name: text('name').notNull(),
 	email: text('email').notNull().unique(),
 	emailVerified: boolean('email_verified').default(false).notNull(),
@@ -12,8 +14,6 @@ export const user = pgTable('user', {
 		.defaultNow()
 		.$onUpdate(() => /* @__PURE__ */ new Date())
 		.notNull(),
-	username: text('username').unique(),
-	displayUsername: text('display_username'),
 });
 
 export const session = pgTable(
@@ -74,14 +74,6 @@ export const verification = pgTable(
 	},
 	(table) => [index('verification_identifier_idx').on(table.identifier)]
 );
-
-export const jwks = pgTable('jwks', {
-	id: text('id').primaryKey(),
-	publicKey: text('public_key').notNull(),
-	privateKey: text('private_key').notNull(),
-	createdAt: timestamp('created_at').notNull(),
-	expiresAt: timestamp('expires_at'),
-});
 
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),

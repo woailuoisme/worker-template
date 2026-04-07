@@ -1,13 +1,14 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Context } from 'hono';
 import { createFactory } from 'hono/factory';
-
+import type { DB } from '@/db';
 import type { Env } from '@/env';
 
 export type AppBindings = Env;
 
 export type AppVariables = {
 	requestId?: string;
+	db: DB;
 };
 
 export type AppEnv = {

@@ -1,6 +1,7 @@
 import { sentry } from '@hono/sentry';
 import { Scalar } from '@scalar/hono-api-reference';
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown';
+import { contextStorage } from 'hono/context-storage';
 import { cors } from 'hono/cors';
 import { isErrorResult, merge } from 'openapi-merge';
 import { validateEnv } from '@/env';
@@ -9,8 +10,7 @@ import { auth } from '@/lib/auth';
 import { initLogger, logger } from '@/lib/logger';
 import { notFound } from '@/middlewares/not-found';
 import { onError } from '@/middlewares/on-error';
-import { articlesRouter } from '@/modules/articles/articles.index';
-import { tasksRouter } from '@/modules/tasks/tasks.index';
+import { v1Router } from '@/routers/v1.routes';
 
 const app = createRouter();
 
@@ -18,6 +18,7 @@ const app = createRouter();
 await initLogger();
 
 // Global middleware
+app.use('*', contextStorage());
 app.use('*', sentry());
 app.use('*', cors());
 
@@ -28,8 +29,7 @@ app.on(['POST', 'GET'], '/api/auth/*', (c) => {
 });
 
 // Feature modules — versioned under /api/v1
-app.route('/api/v1/tasks', tasksRouter);
-app.route('/api/v1/articles', articlesRouter);
+app.route('/api/v1', v1Router);
 
 // Helper to generate OpenAPI spec
 async function generateOpenApiSpec(c: any, app: any) {

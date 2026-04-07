@@ -36,6 +36,11 @@ export async function initLogger(level: LogLevel = 'info') {
 				sinks: ['console'],
 				filters: ['levelFilter'],
 			},
+			{
+				category: ['drizzle-orm'],
+				sinks: ['console'],
+				lowestLevel: 'debug',
+			},
 		],
 	});
 	configured = true;

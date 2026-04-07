@@ -22,7 +22,7 @@ else
 	BIN = npx
 endif
 
-.PHONY: dev deploy check lint type cf-typegen sync-agents skills-install better-auth-generate better-auth-secret db-generate db-migrate db-push db-pull db-seed help
+.PHONY: dev deploy check lint type dead cli test cf-gen-types sync-agents skills-install better-auth-gen-schema better-auth-gen-secret db-generate db-migrate db-push db-pull db-seed help
 
 dev:
 	$(RUN) dev
@@ -30,18 +30,30 @@ dev:
 deploy:
 	$(RUN) deploy
 
-cf-typegen:
-	$(RUN) cf-typegen
+cf-gen-types:
+	$(RUN) cf-gen-types
 
-# 运行代码检查与类型检查
+# 运行代码检查与类型检查等
 check:
-	$(RUN) lint && $(RUN) type
+	$(RUN) check
 
 lint:
 	$(RUN) lint
 
 type:
 	$(RUN) type
+
+# 运行死代码检查
+dead:
+	$(RUN) dead
+
+# 运行自定义 CLI 工具
+cli:
+	$(RUN) cli
+
+# 运行测试
+test:
+	$(RUN) test
 
 # 同步 Agent 配置到各平台特定的文件
 sync-agents:
@@ -52,11 +64,11 @@ skills-install:
 	$(EXEC) skills experimental_install
 
 # 根据 Better Auth 配置生成对应的数据库 Schema
-better-auth-generate:
+better-auth-gen-schema:
 	$(EXEC) @better-auth/cli@latest generate --config ./better-auth.config.ts --output ./src/db/schema/auth.ts
 
 # 为 Better Auth 随机生成一个高强度的安全密钥
-better-auth-secret:
+better-auth-gen-secret:
 	$(EXEC) @better-auth/cli@latest secret
 
 # [迁移管理流程] 对比最新代码，生成用于版本控制的变更 SQL 迁移文件
@@ -85,14 +97,17 @@ help:
 	@echo "----------------------------------------------------------------------"
 	@echo "  make dev                 - 启动本地开发与测试服务器"
 	@echo "  make deploy              - 将 Worker 部署发布到 Cloudflare"
-	@echo "  make check               - 运行代码规范检查与 TypeScript 类型检查"
+	@echo "  make check               - 运行综合检查 (Lint, Type, Dead Code)"
 	@echo "  make lint                - 运行代码规范检查 (Biome)"
 	@echo "  make type                - 运行 TypeScript 类型检查 (tsc)"
+	@echo "  make dead                - 运行死代码分析 (Knip)"
+	@echo "  make cli                 - 运行本地命令行工具"
+	@echo "  make test                - 运行单元测试 (Vitest)"
 	@echo "  make sync-agents         - 将 AGENTS.md 规范同步给 CLAUDE.md 与 GEMINI.md"
 	@echo "  make skills-install      - 为当前开发体系加载并挂载全局锁定的 AI Context Skills"
-	@echo "  make cf-typegen          - 基于 wrangler 自动生成本地强类型绑定"
-	@echo "  make better-auth-generate - 基于配置自动生成专属的 Auth Schema"
-	@echo "  make better-auth-secret  - 生成专用的 Better Auth 密钥"
+	@echo "  make cf-gen-types        - 基于 wrangler 自动生成本地强类型绑定"
+	@echo "  make better-auth-gen-schema - 基于配置自动生成专属的 Auth Schema"
+	@echo "  make better-auth-gen-secret - 生成专用的 Better Auth 密钥"
 	@echo "  make db-generate         - [迁移式] 从现有的 TS Scheme 导出新的 SQL 迁移状态"
 	@echo "  make db-migrate          - [迁移式] 将未处理的 SQL 迁移记录运行并应用到数据库"
 	@echo "  make db-push             - [强制性] 暴力直接将当前架构同步到数据库 (快速但不安全!)"
