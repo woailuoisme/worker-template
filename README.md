@@ -20,7 +20,9 @@
 src/
 ├── app.ts                  # 全局 App 实例化与通用级中间件挂载
 ├── index.ts                # Cloudflare Worker 默认调度入口
-├── v1.routes.ts            # 全局 v1 版本 API 的汇聚式总路由
+├── routers/                # 路由定义中心 (OpenAPI 配置、版本化路由总线)
+│   ├── openapi.routes.ts   # OpenAPI 文档、Scalar UI 及 LLM 适配路由
+│   └── v1.routes.ts        # 全局 v1 版本 API 的汇聚式总路由
 ├── db/                     # 数据库初始配置、Drizzle 架构 Schema 及 数据播种器
 ├── lib/                    # 抽象基库（统一响应体封装、错误管理、Auth服务、日志记录器）
 ├── middlewares/            # 用户自定义 Hono 拦截器（如全局的 Error 和 404 处理）
