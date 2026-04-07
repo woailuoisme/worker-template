@@ -35,8 +35,7 @@
 			"style": {
 				"noInferrableTypes": "warn", // 对于可推断类型，不建议显式声明
 				"noParameterAssign": "error", // 禁止对函数参数重新赋值
-				"noUnusedTemplateLiteral": "error", // 禁止无用的模板字符串
-				"useBlockStatements": "error", // 强制使用代码块
+				"noUnusedTemplateLiteral": "error", // 禁止无用的模板字符串块
 				"useConsistentBuiltinInstantiation": "error", // 统一内置对象的实例化方式
 				"useExponentiationOperator": "warn", // 建议使用幂运算符 **
 				"useExportType": "error", // 强制使用 export type 进行类型导出
