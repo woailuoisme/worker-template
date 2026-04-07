@@ -148,7 +148,7 @@ export const auth = (env: Env, ctx?: ExecutionContext) => {
 		 */
 		rateLimit: {
 			enabled: true,
-			storage: 'database',
+			storage: 'memory',
 			customRules: {
 				'/api/auth/sign-in/email': { window: 60, max: 5 },
 				'/api/auth/sign-up/email': { window: 60, max: 3 },
