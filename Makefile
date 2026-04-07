@@ -22,13 +22,19 @@ else
 	BIN = npx
 endif
 
-.PHONY: dev deploy check lint type dead cli test cf-gen-types sync-agents skills-install better-auth-gen-schema better-auth-gen-secret db-generate db-migrate db-push db-pull db-seed help
+.PHONY: dev deploy deploy-secrets deploy-full check lint type dead cli test cf-gen-types sync-agents skills-install better-auth-gen-schema better-auth-gen-secret db-generate db-migrate db-push db-pull db-seed help
 
 dev:
 	$(RUN) dev
 
 deploy:
 	$(RUN) deploy
+
+deploy-secrets:
+	$(RUN) deploy:secrets
+
+deploy-full:
+	$(RUN) deploy:full
 
 cf-gen-types:
 	$(RUN) cf-gen-types
@@ -96,7 +102,9 @@ help:
 	@echo "  环境变量注入: make [Command] PM=npm/yarn/bun (默认 PM=pnpm)"
 	@echo "----------------------------------------------------------------------"
 	@echo "  make dev                 - 启动本地开发与测试服务器"
-	@echo "  make deploy              - 将 Worker 部署发布到 Cloudflare"
+	@echo "  make deploy              - 将 Worker 代码同步并部署发布到 Cloudflare (不含 Secrets)"
+	@echo "  make deploy-secrets      - 仅上传 .dev.vars.production 中的 Secrets"
+	@echo "  make deploy-full         - [推荐] 先同步云端状态，再上传 Secrets (解决同名冲突)"
 	@echo "  make check               - 运行综合检查 (Lint, Type, Dead Code)"
 	@echo "  make lint                - 运行代码规范检查 (Biome)"
 	@echo "  make type                - 运行 TypeScript 类型检查 (tsc)"

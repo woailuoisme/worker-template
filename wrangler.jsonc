@@ -6,9 +6,7 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"vars": {
 		"APP_NAME": "Tasks API",
-		"NODE_ENV": "production",
-		"BETTER_AUTH_URL": "https://starter.gaara.lol",
-		"RESEND_FROM_EMAIL": "noreply@starter.gaara.lol"
+		"NODE_ENV": "production"
 	},
 	"observability": {
 		"enabled": true,
