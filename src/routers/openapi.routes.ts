@@ -91,16 +91,16 @@ export const getOpenApiRouter = (app: any) => {
 		'/docs',
 		Scalar({
 			theme: 'kepler',
-			layout: 'classic',
+			layout: 'modern',
 			honoRouting: true,
 			sources: [
-				{ title: 'Merged API', url: '/openapi-merged.json' },
 				{ title: 'App Specs', url: '/openapi.json' },
 				{ title: 'Auth Specs', url: '/openapi-auth.json' },
+				{ title: 'Full Specs', url: '/openapi-merged.json' },
 			],
 			defaultHttpClient: {
-				targetKey: 'js',
-				clientKey: 'fetch',
+				targetKey: 'shell',
+				clientKey: 'curl',
 			},
 		} as any)
 	);
