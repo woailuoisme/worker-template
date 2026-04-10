@@ -6,10 +6,11 @@ import { createRouter } from '@/factory';
 import { auth } from '@/lib/auth';
 import { OPENAPI_DESCRIPTION } from '@/lib/constants';
 import { logger } from '@/lib/logger';
+import packageJSON from '../../package.json' with { type: 'json' };
 
 const API_INFO = {
-	title: 'Worker API',
-	version: '1.0.0',
+	title: 'Tasks API',
+	version: packageJSON.version,
 	description: OPENAPI_DESCRIPTION,
 };
 
@@ -90,12 +91,17 @@ export const getOpenApiRouter = (app: any) => {
 		'/docs',
 		Scalar({
 			theme: 'kepler',
+			layout: 'classic',
 			honoRouting: true,
 			sources: [
 				{ title: 'Merged API', url: '/openapi-merged.json' },
 				{ title: 'App Specs', url: '/openapi.json' },
 				{ title: 'Auth Specs', url: '/openapi-auth.json' },
 			],
+			defaultHttpClient: {
+				targetKey: 'js',
+				clientKey: 'fetch',
+			},
 		} as any)
 	);
 

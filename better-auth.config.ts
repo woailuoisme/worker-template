@@ -10,9 +10,14 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './src/db/schema/auth';
-import { betterAuthOptions } from './src/lib/auth';
+import { betterAuthOptions, parseTrustedOrigins } from './src/lib/auth';
 
-const { DATABASE_URL, BETTER_AUTH_URL, BETTER_AUTH_SECRET } = process.env;
+const {
+	DATABASE_URL,
+	BETTER_AUTH_URL,
+	BETTER_AUTH_SECRET,
+	AUTH_TRUSTED_ORIGINS,
+} = process.env;
 
 if (!DATABASE_URL) {
 	throw new Error('DATABASE_URL is not defined');
@@ -20,10 +25,12 @@ if (!DATABASE_URL) {
 
 const sql = neon(DATABASE_URL);
 const db = drizzle(sql);
+const trustedOrigins = parseTrustedOrigins(AUTH_TRUSTED_ORIGINS);
 
 export const auth = betterAuth({
 	...betterAuthOptions,
 	database: drizzleAdapter(db, { provider: 'pg', schema }), // schema is required in order for bettter-auth to recognize
 	baseURL: BETTER_AUTH_URL,
 	secret: BETTER_AUTH_SECRET,
+	...(trustedOrigins ? { trustedOrigins } : {}),
 });

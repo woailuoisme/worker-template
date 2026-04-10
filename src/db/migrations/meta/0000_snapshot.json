@@ -1,6 +1,6 @@
 {
-	"id": "9091df87-bc9f-43c9-95a3-697700c2e73e",
-	"prevId": "3a379e65-da06-4522-bf20-f324b2992e7f",
+	"id": "f32a3cfb-853e-4643-a714-e5c7e7e88003",
+	"prevId": "00000000-0000-0000-0000-000000000000",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -226,6 +226,13 @@
 					"primaryKey": true,
 					"notNull": true
 				},
+				"role": {
+					"name": "role",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'user'"
+				},
 				"name": {
 					"name": "name",
 					"type": "text",
@@ -372,7 +379,7 @@
 				},
 				"status": {
 					"name": "status",
-					"type": "varchar(50)",
+					"type": "text",
 					"primaryKey": false,
 					"notNull": true,
 					"default": "'pending'"

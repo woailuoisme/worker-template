@@ -62,6 +62,7 @@ export async function sendEmail(
 		const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
 		try {
+			// 显式传入全局 fetch 确保在 Cloudflare Workers 等 Edge 运行时中不丢失上下文
 			const resend = new Resend(env.RESEND_API_KEY);
 			const { data, error } = await resend.emails.send(
 				{
@@ -158,8 +159,8 @@ export async function sendOTPEmail(
 	return sendEmail(env, {
 		to,
 		subject: `${title} – ${appName}`,
-		// Render the JSX template to a string
-		html: (TemplateOTP({ otp, title, appName }) as any).toString(),
+		// Render the JSX template to a string natively (Hono JSX returns HtmlEscapedString)
+		html: TemplateOTP({ otp, title, appName }).toString(),
 		text: `${title}\n\n验证码: ${otp}\n\n该验证码 10 分钟内有效。`,
 		// Use a deterministic key to prevent accidental duplicate sends
 		// if the auth flow retries this call.

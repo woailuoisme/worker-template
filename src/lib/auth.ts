@@ -14,6 +14,33 @@ import { sendEmail } from '@/lib/email';
 import { logger } from '@/lib/logger';
 import { TemplateActionLink } from '@/resources/email/email-templates';
 
+export function parseTrustedOrigins(
+	value?: string | null
+): string[] | undefined {
+	if (!value) {
+		return undefined;
+	}
+
+	const origins = value
+		.split(',')
+		.map((origin) => origin.trim())
+		.filter(Boolean);
+
+	if (origins.length === 0) {
+		return undefined;
+	}
+
+	const normalizedOrigins = origins.map((origin) => {
+		try {
+			return new URL(origin).origin;
+		} catch {
+			throw new Error(`Invalid trusted origin: ${origin}`);
+		}
+	});
+
+	return [...new Set(normalizedOrigins)];
+}
+
 /**
  * Custom options for Better Auth
  */
@@ -37,6 +64,9 @@ export const auth = (env: Env, ctx?: ExecutionContext) => {
 		database: drizzleAdapter(db, { provider: 'pg' }),
 		baseURL: env.BETTER_AUTH_URL,
 		secret: env.BETTER_AUTH_SECRET,
+		...(env.AUTH_TRUSTED_ORIGINS
+			? { trustedOrigins: env.AUTH_TRUSTED_ORIGINS }
+			: {}),
 		plugins: [
 			/** 自动生成所有认证接口的 OpenAPI 规范，实现 API 文档自动同步。 */
 			openAPI(),

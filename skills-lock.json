@@ -61,6 +61,11 @@
 			"sourceType": "github",
 			"computedHash": "dcace78e5cef7d8dce8ffef7ebee146e6c83a438aa4cf80bf502730e870c02d4"
 		},
+		"resend": {
+			"source": "resend/resend-skills",
+			"sourceType": "github",
+			"computedHash": "f9b9da21da1ccaa4ff9f64bf87b8327c29ec5addb0f328011e2d42cf60a5ed19"
+		},
 		"two-factor-authentication-best-practices": {
 			"source": "better-auth/skills",
 			"sourceType": "github",

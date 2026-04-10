@@ -21,7 +21,7 @@
 		"noPropertyAccessFromIndexSignature": false,
 		"useUnknownInCatchVariables": true,
 		"moduleResolution": "Bundler",
-		"module": "es2022",
+		"module": "ESNext",
 		"noEmit": true,
 		"lib": ["es2024", "dom", "dom.iterable"],
 		"types": [
