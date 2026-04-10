@@ -64,6 +64,19 @@ src/
 
 ## 设计约定
 
+### 黄金法则 (Golden Rules)
+
+| 规则 | 说明 |
+|------|-------------|
+| **工厂原则 (Factory)** | 必须使用 `@/factory` 中的 `createRouter()`，禁止 `new Hono()` |
+| **服务纯净 (Service)** | Service 只接收原始数据/对象，**严禁** 传入 Hono `Context` |
+| **Schema 派生** | 优先从 Drizzle 表派生 Zod Schema，禁止手写重复的数据库类型 |
+| **ISO 时间** | API 响应必须统一使用 ISO 字符串格式的时间，禁止直接返回 `Date` 对象 |
+| **语义化状态码** | 统一使用 `stoker/http-status-codes`，禁止使用魔法数字 (如 200, 404) |
+| **单向依赖** | 模块间调用必须通过 `Service` 或 `.index.ts` 导出，严禁交叉引用 Handler |
+
+### 架构细节
+
 - 路由只负责声明接口与挂载，不写业务逻辑。
 - Handler 只做参数整理与响应包装。
 - Service 负责核心业务与 DB 交互。
