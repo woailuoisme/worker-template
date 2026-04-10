@@ -82,7 +82,8 @@ src/
 项目通过 `npx skills` 锁定并优先参考以下技能：
 
 - Hono: `hono`, `hono-best-practices`
-- Better Auth: `better-auth-best-practices`
+- Better Auth: `better-auth-best-practices`, `better-auth-security-best-practices`, `email-and-password-best-practices`, `two-factor-authentication-best-practices`, `organization-best-practices`
 - 数据库: `neon-drizzle`, `neon-postgres`, `drizzle-orm`, `postgresql-table-design`
 - Cloudflare: `cloudflare`, `workers-best-practices`, `wrangler`
-- 验证与测试: `zod-4`, `vitest-best-practices`
+- 验证与测试: `zod-4`, `vitest`, `vitest-best-practices`
+- 邮件: `resend`, `email-best-practices`
