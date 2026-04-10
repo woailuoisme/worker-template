@@ -5,13 +5,14 @@ import { logger } from '../src/lib/logger';
 /**
  * Ensures the target directory exists, creating it if necessary.
  */
-export function ensureDirectoryExistence(filePath: string) {
+export function ensureDirectoryExistence(filePath: string): boolean {
 	const dir = dirname(filePath);
 	if (existsSync(dir)) {
 		return true;
 	}
 	ensureDirectoryExistence(dir);
 	mkdirSync(dir);
+	return true;
 }
 
 /**

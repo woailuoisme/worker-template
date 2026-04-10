@@ -1,51 +1,40 @@
 {
 	"compilerOptions": {
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"target": "es2022",
-		"verbatimModuleSyntax": false,
-		"allowJs": false,
-		"resolveJsonModule": true,
-		"moduleDetection": "force",
+		/* Base Options */
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["./worker-configuration.d.ts", "@types/node"],
+		/* Strictness */
 		"strict": true,
-		"noImplicitAny": true,
-		"noImplicitThis": true,
-		"strictNullChecks": true,
-		"strictFunctionTypes": true,
-		"strictBindCallApply": true,
-		"strictPropertyInitialization": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
-		"noPropertyAccessFromIndexSignature": false,
-		"useUnknownInCatchVariables": true,
-		"moduleResolution": "Bundler",
-		"module": "ESNext",
-		"noEmit": true,
-		"lib": ["es2024", "dom", "dom.iterable"],
-		"types": [
-			"./worker-configuration.d.ts",
-			"@types/node",
-			"@types/service-worker-mock"
-		],
+		/* Interop & Safety */
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"forceConsistentCasingInFileNames": true,
+		/* Hono / JSX */
+		"jsx": "react-jsx",
+		"jsxImportSource": "hono/jsx",
+		/* Path Mapping */
 		"paths": {
 			"@/*": ["./src/*"],
 			"@tests/*": ["./tests/*"],
 			"~/*": ["./*"]
 		},
-		"jsx": "react-jsx",
-		"jsxImportSource": "hono/jsx",
-		"forceConsistentCasingInFileNames": true,
-		"allowUnreachableCode": false,
-		"allowUnusedLabels": false
+		"noEmit": true
 	},
-	"exclude": ["node_modules", "dist", "specs"],
 	"include": [
 		"src",
 		"tests",
-		"scripts",
-		"commands",
+		"cli",
+		"better-auth.config.ts",
+		"drizzle.config.ts",
 		"worker-configuration.d.ts"
-	]
+	],
+	"exclude": ["node_modules", "dist", "specs"]
 }

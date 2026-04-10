@@ -16,14 +16,16 @@ vi.mock('@neondatabase/serverless', () => ({
 // layer is completely decoupled from Hono. No app.request() is used here.
 // ---------------------------------------------------------------------------
 
-const MOCK_TASK = {
-	id: 'a0b1c2d3-e4f5-6789-abcd-ef0123456789',
-	title: 'Test Task',
-	status: 'pending',
-	description: null,
-	createdAt: new Date().toISOString(),
-	updatedAt: new Date().toISOString(),
-};
+const { MOCK_TASK } = vi.hoisted(() => ({
+	MOCK_TASK: {
+		id: 'a0b1c2d3-e4f5-6789-abcd-ef0123456789',
+		title: 'Test Task',
+		status: 'pending',
+		description: null,
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+}));
 
 // Mock DB layer so service can run without a real database
 vi.mock('@/db', () => ({
@@ -100,7 +102,7 @@ vi.mock('../tasks.service', () => ({
 	TasksService: {
 		list: vi.fn().mockResolvedValue({ items: [MOCK_TASK], total: 1 }),
 		getById: vi.fn().mockResolvedValue(MOCK_TASK),
-		create: vi.fn().mockResolvedValue({ ...MOCK_TASK, title: 'New Task' }),
+		create: vi.fn().mockResolvedValue(MOCK_TASK),
 		update: vi.fn().mockResolvedValue(MOCK_TASK),
 		remove: vi.fn().mockResolvedValue(undefined),
 	},

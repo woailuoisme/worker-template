@@ -1,57 +1,49 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 export default defineConfig({
-	root: __dirname,
-
 	test: {
-		include: ['tests/**/*.(test|spec).(ts|tsx)', 'src/**/*.test.(ts|tsx)'],
+		/* 核心路径 */
+		include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
+		exclude: ['**/node_modules/**', '**/dist/**'],
+
+		/* 运行环境 */
 		environment: 'node',
-		hookTimeout: 30000,
+		globals: false, // 鼓励显示导入 (describe, it, expect) 以获得更好的 IDE 支持
 
-		// Coverage disabled by default, enable with --coverage
-		coverage: {
-			enabled: false,
-			provider: 'v8',
-		},
+		/* 自动化清理 (极简版) */
+		clearMocks: true,
+		restoreMocks: true,
+		mockReset: false,
 
-		// Reporters
+		/* 报告器与 CI 适配 */
 		reporters: ['default', 'json', 'junit'],
 		outputFile: {
 			json: './test-results/results.json',
 			junit: './test-results/results.xml',
 		},
 
-		// Mock cleanup
-		clearMocks: true,
-		restoreMocks: true,
+		/* 覆盖率配置 */
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'json', 'html'],
+			exclude: ['cli/**', 'tests/**'],
+		},
 
-		// Use default pool (no custom config)
+		/* 超时设置 */
+		hookTimeout: 30000,
+		testTimeout: 10000,
 	},
 
-	// Vite resolve - match tsconfig.json
+	/* 别名解析 — 保持与 tsconfig 一致 */
 	resolve: {
-		conditions: ['node'],
-		alias: [
-			{
-				find: '@',
-				replacement: `${path.resolve(__dirname, 'src')}/`,
-			},
-			{
-				find: '~',
-				replacement: `${__dirname}/`,
-			},
-		],
+		alias: {
+			'@': new URL('./src', import.meta.url).pathname,
+			'~': new URL('.', import.meta.url).pathname,
+		},
 	},
 
-	// Build target
+	/* 构建优化 */
 	esbuild: {
-		target: 'es2022',
+		target: 'esnext',
 	},
-
-	// Miniflare setup is handled per-test via Miniflare directly.
 });
