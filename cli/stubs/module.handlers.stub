@@ -1,15 +1,45 @@
-import type { AppContext } from '@/factory';
-import { {{PascalName}}Service } from './{{ModuleName}}.service';
+import type { AppRouteHandler } from '@/factory';
+import { sendPaginated, sendSuccess } from '@/lib/response';
+import type { routes } from '@/modules/{{ModuleName}}/{{ModuleName}}.routes';
+import { {{PascalName}}Service } from '@/modules/{{ModuleName}}/{{ModuleName}}.service';
 
-export const listHandler = async (c: AppContext) => {
-	const service = new {{PascalName}}Service(c.env.DATABASE_URL);
-	const data = await service.list();
-	return c.json(data, 200);
-};
+/**
+ * {{PascalName}}Handlers: thin HTTP glue layer.
+ *
+ * Responsibilities:
+ *  - Extract validated data from Hono context
+ *  - Call the appropriate {{PascalName}}Service method
+ *  - Map the result to a structured HTTP response
+ */
+export const {{PascalName}}Handlers = {
+	list: (async (c) => {
+		const { page = 1, limit = 10 } = c.req.valid('query');
+		const { items, total } = await {{PascalName}}Service.list({ page, limit });
+		return sendPaginated(c, items, { page, limit, total });
+	}) satisfies AppRouteHandler<typeof routes.list>,
 
-export const getHandler = async (c: AppContext) => {
-	const { id } = c.req.valid('param' as never);
-	const service = new {{PascalName}}Service(c.env.DATABASE_URL);
-	const data = await service.getById(id);
-	return c.json(data, 200);
+	get: (async (c) => {
+		const { id } = c.req.valid('param');
+		const item = await {{PascalName}}Service.getById(id);
+		return sendSuccess(c, item);
+	}) satisfies AppRouteHandler<typeof routes.get>,
+
+	create: (async (c) => {
+		const data = c.req.valid('json');
+		const item = await {{PascalName}}Service.create(data);
+		return sendSuccess(c, item, { code: 201, message: '{{PascalName}} created' });
+	}) satisfies AppRouteHandler<typeof routes.create>,
+
+	update: (async (c) => {
+		const { id } = c.req.valid('param');
+		const data = c.req.valid('json');
+		const item = await {{PascalName}}Service.update(id, data);
+		return sendSuccess(c, item, { message: '{{PascalName}} updated' });
+	}) satisfies AppRouteHandler<typeof routes.update>,
+
+	remove: (async (c) => {
+		const { id } = c.req.valid('param');
+		await {{PascalName}}Service.remove(id);
+		return sendSuccess(c, null, { message: '{{PascalName}} deleted' });
+	}) satisfies AppRouteHandler<typeof routes.delete>,
 };

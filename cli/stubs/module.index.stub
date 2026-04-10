@@ -1,2 +1,1 @@
-export * from './{{ModuleName}}.routes';
-export * from './{{ModuleName}}.service';
+export { {{CamelName}}Router } from '@/modules/{{ModuleName}}/{{ModuleName}}.routes';

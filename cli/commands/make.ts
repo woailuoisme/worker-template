@@ -88,13 +88,15 @@ export function setupMakeCommand(program: Command) {
 					createFile(destPath, content, options.force);
 				}
 
-				// 1. service.ts
+				// 1. schema.ts
+				generateFromStub('module.schema.stub', `${moduleName}.schema.ts`);
+				// 2. service.ts
 				generateFromStub('module.service.stub', `${moduleName}.service.ts`);
-				// 2. handlers.ts
+				// 3. handlers.ts
 				generateFromStub('module.handlers.stub', `${moduleName}.handlers.ts`);
-				// 3. routes.ts
+				// 4. routes.ts
 				generateFromStub('module.routes.stub', `${moduleName}.routes.ts`);
-				// 4. index.ts
+				// 5. index.ts
 				generateFromStub('module.index.stub', `${moduleName}.index.ts`);
 
 				logger.info(

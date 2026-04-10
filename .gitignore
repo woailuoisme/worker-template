@@ -37,7 +37,10 @@ lerna-debug.log*
 # Agents/Skills/Specs
 specs/
 .specify/
-.claude/skills/
-.agents/skills/
+.claude
+.agents
 .agent/
 .idea
+.codex
+.codebuddy
+.vscode

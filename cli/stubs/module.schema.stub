@@ -1,0 +1,45 @@
+import { z } from '@hono/zod-openapi';
+import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+
+/**
+ * Definition of the {{CamelName}} table.
+ */
+export const {{CamelName}} = pgTable('{{ModuleName}}', {
+	id: uuid('id').defaultRandom().primaryKey(),
+	name: text('name').notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at')
+		.defaultNow()
+		.$onUpdate(() => new Date())
+		.notNull(),
+});
+
+/**
+ * Zod schemas for validation and OpenAPI documentation.
+ */
+const selectSchema = createSelectSchema({{CamelName}}, {
+	createdAt: z.iso.datetime({ error: 'Invalid creation timestamp' }),
+	updatedAt: z.iso.datetime({ error: 'Invalid update timestamp' }),
+}).openapi('{{PascalName}}');
+
+const insertSchema = createInsertSchema({{CamelName}}, {
+	name: (s) => s.min(1, { error: 'Name is required' }),
+})
+	.omit({
+		id: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.openapi('Insert{{PascalName}}');
+
+const updateSchema = insertSchema.partial().openapi('Update{{PascalName}}');
+
+export const {{PascalName}}Schemas = {
+	select: selectSchema,
+	insert: insertSchema,
+	update: updateSchema,
+};
+
+export type {{PascalName}} = z.infer<typeof selectSchema>;
+export type Insert{{PascalName}} = z.infer<typeof insertSchema>;

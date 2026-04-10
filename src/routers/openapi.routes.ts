@@ -9,7 +9,7 @@ import { logger } from '@/lib/logger';
 import packageJSON from '../../package.json' with { type: 'json' };
 
 const API_INFO = {
-	title: 'Tasks API',
+	title: packageJSON.name,
 	version: packageJSON.version,
 	description: OPENAPI_DESCRIPTION,
 };

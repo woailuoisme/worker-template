@@ -1,11 +1,92 @@
-export class {{PascalName}}Service {
-	constructor(private readonly dbUrl: string) {}
+import { count, eq } from 'drizzle-orm';
+import { getDb } from '@/db';
+import {
+	type Insert{{PascalName}},
+	type {{PascalName}},
+	{{CamelName}},
+} from '@/modules/{{ModuleName}}/{{ModuleName}}.schema';
 
-	async list() {
-		return [];
-	}
-
-	async getById(id: string) {
-		return null;
+export class {{PascalName}}NotFoundError extends Error {
+	constructor(id: string) {
+		super(`{{PascalName}} with id ${id} not found`);
+		this.name = '{{PascalName}}NotFoundError';
 	}
 }
+
+const format{{PascalName}} = (item: any): {{PascalName}} => ({
+	...item,
+	createdAt: item.createdAt.toISOString(),
+	updatedAt: item.updatedAt.toISOString(),
+});
+
+export const {{PascalName}}Service = {
+	list: async (options: {
+		page: number;
+		limit: number;
+	}): Promise<{ items: {{PascalName}}[]; total: number }> => {
+		const db = getDb();
+		const offset = (options.page - 1) * options.limit;
+
+		const [totalResult, items] = await Promise.all([
+			db.select({ value: count() }).from({{CamelName}}),
+			db.query.{{CamelName}}.findMany({
+				orderBy: ({{CamelName}}, { asc }) => [asc({{CamelName}}.createdAt)],
+				limit: options.limit,
+				offset,
+			}),
+		]);
+
+		return {
+			items: items.map(format{{PascalName}}),
+			total: totalResult[0]?.value ?? 0,
+		};
+	},
+
+	getById: async (id: string): Promise<{{PascalName}}> => {
+		const db = getDb();
+		const item = await db.query.{{CamelName}}.findFirst({
+			where: ({{CamelName}}, { eq }) => eq({{CamelName}}.id, id),
+		});
+
+		if (!item) {
+			throw new {{PascalName}}NotFoundError(id);
+		}
+		return format{{PascalName}}(item);
+	},
+
+	create: async (data: Insert{{PascalName}}): Promise<{{PascalName}}> => {
+		const db = getDb();
+		const [item] = await db.insert({{CamelName}}).values(data).returning();
+
+		if (!item) {
+			throw new Error('Failed to create {{CamelName}}');
+		}
+		return format{{PascalName}}(item);
+	},
+
+	update: async (id: string, data: Partial<Insert{{PascalName}}>): Promise<{{PascalName}}> => {
+		const db = getDb();
+		const [item] = await db
+			.update({{CamelName}})
+			.set({ ...data, updatedAt: new Date() })
+			.where(eq({{CamelName}}.id, id))
+			.returning();
+
+		if (!item) {
+			throw new {{PascalName}}NotFoundError(id);
+		}
+		return format{{PascalName}}(item);
+	},
+
+	remove: async (id: string): Promise<void> => {
+		const db = getDb();
+		const [result] = await db
+			.delete({{CamelName}})
+			.where(eq({{CamelName}}.id, id))
+			.returning({ deletedId: {{CamelName}}.id });
+
+		if (!result) {
+			throw new {{PascalName}}NotFoundError(id);
+		}
+	},
+};

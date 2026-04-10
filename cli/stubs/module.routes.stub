@@ -1,53 +1,133 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import { createRouter } from '@/factory';
-import { errorResponseSchema } from '@/lib/errors';
-import * as handlers from './{{ModuleName}}.handlers';
+import {
+	apiErrorSchema,
+	apiPaginatedSchema,
+	apiSuccessSchema,
+	paginationQuerySchema,
+} from '@/lib/response';
+import { {{PascalName}}Handlers } from '@/modules/{{ModuleName}}/{{ModuleName}}.handlers';
+import { {{PascalName}}Schemas } from '@/modules/{{ModuleName}}/{{ModuleName}}.schema';
 
 const router = createRouter();
-
 const tags = ['{{PascalName}}'];
 
 const idParamSchema = z.object({
-	id: z.string().openapi({ example: '123' }),
+	id: z.uuid({ error: 'Invalid {{PascalName}} ID (UUID required)' }),
 });
 
-export const list{{PascalName}}Route = createRoute({
-	method: 'get',
-	path: '/',
-	tags,
-	summary: 'List {{ModuleName}}',
-	operationId: 'list{{PascalName}}',
-	responses: {
-		200: {
-			description: 'List of {{ModuleName}}',
-			content: {
-				'application/json': { schema: z.array(z.any()) },
+export const routes = {
+	list: createRoute({
+		method: 'get',
+		path: '/',
+		tags,
+		summary: 'List {{ModuleName}}',
+		operationId: 'list{{PascalName}}',
+		request: { query: paginationQuerySchema },
+		responses: {
+			200: {
+				description: 'List of {{ModuleName}}',
+				content: {
+					'application/json': {
+						schema: apiPaginatedSchema({{PascalName}}Schemas.select),
+					},
+				},
 			},
 		},
-	},
-});
-router.openapi(list{{PascalName}}Route, handlers.listHandler);
+	}),
 
-export const get{{PascalName}}Route = createRoute({
-	method: 'get',
-	path: '/{id}',
-	tags,
-	summary: 'Get {{ModuleName}} by ID',
-	operationId: 'get{{PascalName}}',
-	request: {
-		params: idParamSchema,
-	},
-	responses: {
-		200: {
-			description: '{{PascalName}} details',
-			content: { 'application/json': { schema: z.any() } },
+	get: createRoute({
+		method: 'get',
+		path: '/{id}',
+		tags,
+		summary: 'Get {{CamelName}} by ID',
+		operationId: 'get{{PascalName}}',
+		request: { params: idParamSchema },
+		responses: {
+			200: {
+				description: '{{PascalName}} details',
+				content: {
+					'application/json': { schema: apiSuccessSchema({{PascalName}}Schemas.select) },
+				},
+			},
+			404: {
+				description: '{{PascalName}} not found',
+				content: { 'application/json': { schema: apiErrorSchema } },
+			},
 		},
-		404: {
-			description: 'Not found',
-			content: { 'application/json': { schema: errorResponseSchema } },
+	}),
+
+	create: createRoute({
+		method: 'post',
+		path: '/',
+		tags,
+		summary: 'Create {{CamelName}}',
+		operationId: 'create{{PascalName}}',
+		request: {
+			body: { content: { 'application/json': { schema: {{PascalName}}Schemas.insert } } },
 		},
-	},
-});
-router.openapi(get{{PascalName}}Route, handlers.getHandler);
+		responses: {
+			201: {
+				description: 'Created {{CamelName}}',
+				content: {
+					'application/json': { schema: apiSuccessSchema({{PascalName}}Schemas.select) },
+				},
+			},
+			422: {
+				description: 'Validation Error',
+				content: { 'application/json': { schema: apiErrorSchema } },
+			},
+		},
+	}),
+
+	update: createRoute({
+		method: 'patch',
+		path: '/{id}',
+		tags,
+		summary: 'Update {{CamelName}}',
+		operationId: 'update{{PascalName}}',
+		request: {
+			params: idParamSchema,
+			body: { content: { 'application/json': { schema: {{PascalName}}Schemas.update } } },
+		},
+		responses: {
+			200: {
+				description: 'Updated {{CamelName}}',
+				content: {
+					'application/json': { schema: apiSuccessSchema({{PascalName}}Schemas.select) },
+				},
+			},
+			404: {
+				description: '{{PascalName}} not found',
+				content: { 'application/json': { schema: apiErrorSchema } },
+			},
+		},
+	}),
+
+	delete: createRoute({
+		method: 'delete',
+		path: '/{id}',
+		tags,
+		summary: 'Delete {{CamelName}}',
+		operationId: 'delete{{PascalName}}',
+		request: { params: idParamSchema },
+		responses: {
+			200: {
+				description: '{{PascalName}} deleted',
+				content: { 'application/json': { schema: apiSuccessSchema(z.null()) } },
+			},
+			404: {
+				description: '{{PascalName}} not found',
+				content: { 'application/json': { schema: apiErrorSchema } },
+			},
+		},
+	}),
+};
+
+router.openapi(routes.list, {{PascalName}}Handlers.list);
+router.openapi(routes.get, {{PascalName}}Handlers.get);
+router.openapi(routes.create, {{PascalName}}Handlers.create);
+router.openapi(routes.update, {{PascalName}}Handlers.update);
+router.openapi(routes.delete, {{PascalName}}Handlers.remove);
 
 export { router as {{CamelName}}Router };
