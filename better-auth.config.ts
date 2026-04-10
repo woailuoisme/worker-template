@@ -3,7 +3,13 @@
  *
  * Docs: https://www.better-auth.com/docs/concepts/cli
  */
-process.loadEnvFile('.env');
+import { existsSync } from 'node:fs';
+
+if (existsSync('.dev.vars')) {
+	process.loadEnvFile('.dev.vars');
+} else if (existsSync('.env')) {
+	process.loadEnvFile('.env');
+}
 
 import { neon } from '@neondatabase/serverless';
 import { betterAuth } from 'better-auth';
