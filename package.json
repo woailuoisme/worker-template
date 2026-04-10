@@ -26,7 +26,6 @@
 		"@scalar/hono-api-reference": "^0.10.7",
 		"@scalar/openapi-to-markdown": "^0.5.2",
 		"@t3-oss/env-core": "^0.13.11",
-		"bcrypt": "^6.0.0",
 		"better-auth": "^1.6.2",
 		"commander": "^14.0.3",
 		"drizzle-orm": "^0.45.2",

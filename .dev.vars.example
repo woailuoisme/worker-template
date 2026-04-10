@@ -1,0 +1,22 @@
+# Local development environment variables
+# Copy this file to '.dev.vars' and fill in your values
+# DO NOT commit '.dev.vars' or '.dev.vars.production' to version control!
+
+# Database connection string (e.g., Neon serverless Postgres)
+DATABASE_URL=postgresql://user:password@hostname/dbname?sslmode=require
+
+# Better Auth Configuration
+# Generate a secret via: `openssl rand -hex 32`
+BETTER_AUTH_SECRET=your_32_character_hex_secret_here
+# Base URL of the API for authentication callbacks
+BETTER_AUTH_URL=http://localhost:8787
+
+# Comma-separated list of allowed origins for CORS (e.g., your frontend apps)
+AUTH_TRUSTED_ORIGINS=http://localhost:3000,http://localhost:8787
+
+# Sentry Error Tracking (Optional)
+SENTRY_DSN=https://your_sentry_dsn_here
+
+# Resend Email Configuration (Optional - for auth verify/reset)
+RESEND_API_KEY=re_your_api_key_here
+RESEND_FROM_EMAIL=support@yourdomain.com
