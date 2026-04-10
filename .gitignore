@@ -34,6 +34,11 @@ lerna-debug.log*
 # misc
 .DS_Store
 
+# tests
+test-results/*
+!test-results/.gitkeep
+coverage/
+
 # Agents/Skills/Specs
 specs/
 .specify/
