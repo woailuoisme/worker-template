@@ -20,29 +20,34 @@
 
 ```text
 src/
-├── app.ts                  # Hono 应用挂载与全局中间件，OpenAPI 合并（/openapi.json & /llms.txt）
-├── env.ts                  # Zod 环境变量定义与严格解析
-├── factory.ts              # Hono 实例工厂
+├── app.ts                  # Hono 应用挂载与全局中间件
+├── env.ts                  # Zod 环境变量定义与严格解析 (@t3-oss/env-core)
+├── factory.ts              # Hono 实例工厂 (AppEnv / createRouter)
 ├── index.ts                # Worker 默认入口
 ├── db/
 │   ├── index.ts            # getDb() 与 schema 汇聚
 │   ├── schema/             # 通用/核心 Schema（如 Auth）
-│   └── seeder/             # 数据库播种入口
+│   └── seeder/             # 基于 drizzle-seed 的数据库播种入口
 ├── lib/
-│   ├── auth.ts             # Better Auth 实例
-│   ├── errors.ts           # AppError / NotFoundError / ValidationError
-│   └── logger.ts           # 日志记录器
+│   ├── auth.ts             # Better Auth 实例与配置
+│   ├── response.ts         # 统一 JSON 响应封装 (Success/Error/Paginated)
+│   ├── errors.ts           # AppError / NotFoundError 异常定义
+│   └── logger.ts           # Logtape 日志记录器
+├── routers/
+│   ├── v1.routes.ts        # 业务模块路由聚合
+│   └── openapi.routes.ts   # OpenAPI Specs (/openapi.json), Scalar (/docs) 与 LLM (/llms.txt)
 ├── middlewares/
+│   ├── logtape-logger.ts   # 请求日志中间件
 │   ├── not-found.ts        # 404 处理
-│   └── on-error.ts         # 全局异常处理
-├── services/               # 共享服务
+│   └── on-error.ts         # 全局异常处理 (对接 AppError)
+├── resources/              # 静态资源与邮件模板 (React-email)
 └── modules/
     └── {feature}/
-        ├── {feature}.routes.ts   # OpenAPI 路由定义
-        ├── {feature}.handlers.ts # 请求参数提取与响应包装
-        ├── {feature}.service.ts  # 业务逻辑 / DB 访问
-        ├── {feature}.schema.ts   # 业务私有 Schema
-        └── {feature}.index.ts    # 模块导出与挂载入口
+        ├── {feature}.schema.ts   # 业务 Drizzle Schema与 Zod 类型
+        ├── {feature}.routes.ts   # OpenAPI 路由描述
+        ├── {feature}.handlers.ts # 请求处理逻辑
+        ├── {feature}.service.ts  # 核心业务逻辑与 DB 访问
+        └── {feature}.index.ts    # 模块导出入口
 ```
 
 ## 技术栈
@@ -50,12 +55,12 @@ src/
 - Runtime/部署: Cloudflare Workers
 - Web 框架: Hono + `@hono/zod-openapi`
 - 数据库: Neon Serverless / Drizzle ORM
-- 验证: Zod
+- 验证: Zod / `@t3-oss/env-core`
 - API 文档: Scalar (`/docs`) + OpenAPI 3.1 (`/openapi.json`)
 - LLM 适配: `@scalar/openapi-to-markdown` 生成 `/llms.txt`
 - 鉴权: Better Auth
 - 日志: `@logtape/logtape`
-- 工具: `tsx`, `commander`, `biome`, `vitest`, `knip`
+- 工具: `tsx`, `commander`, `biome`, `vitest`, `knip`, `drizzle-seed`, `openapi-merge`, `stoker`, `resend`
 
 ## 设计约定
 
